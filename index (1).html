@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Management System</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: Arial, sans-serif; background: #eef2f7; color: #333; }
+
+  /* ── LOGIN ── */
+  #loginPage {
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; background: #eef2f7;
+  }
+  .login-box {
+    background: #fff; padding: 40px; border-radius: 8px;
+    width: 340px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  }
+  .login-box h2 { text-align: center; color: #1a2b45; margin-bottom: 6px; }
+  .login-box .hint { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; }
+  .login-box input {
+    width: 100%; padding: 10px; margin-bottom: 14px;
+    border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+  }
+  .login-box input:focus { outline: none; border-color: #1a2b45; }
+  .login-box button {
+    width: 100%; padding: 10px; background: #1a2b45; color: #fff;
+    border: none; border-radius: 4px; font-size: 15px; cursor: pointer;
+  }
+  .login-box button:hover { background: #243d5e; }
+  .login-error { color: #c0392b; text-align: center; font-size: 13px; margin-top: 10px; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; }
+
+  .navbar {
+    background: #1a2b45; padding: 12px 25px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .navbar .brand { color: #fff; font-size: 17px; font-weight: bold; }
+  .navbar nav a {
+    color: #cdd8e8; text-decoration: none;
+    margin-left: 16px; font-size: 13px; cursor: pointer;
+  }
+  .navbar nav a:hover, .navbar nav a.active { color: #fff; text-decoration: underline; }
+
+  .container {
+    max-width: 1100px; margin: 30px auto; background: #fff;
+    padding: 30px; border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+
+  h2 { color: #1a2b45; border-bottom: 2px solid #1a2b45; padding-bottom: 8px; margin-bottom: 20px; }
+  h3 { color: #2c3e50; margin: 20px 0 10px; }
+
+  /* ── ALERTS ── */
+  .alert {
+    padding: 10px 15px; border-radius: 4px; margin-bottom: 15px;
+    font-size: 14px; display: none;
+  }
+  .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .alert.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+  /* ── FORMS ── */
+  .form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #555; }
+  input[type="text"], input[type="email"], input[type="number"],
+  input[type="date"], input[type="password"], select {
+    padding: 8px 10px; border: 1px solid #ccc;
+    border-radius: 4px; font-size: 14px; width: 200px;
+  }
+  input:focus, select:focus { outline: none; border-color: #1a2b45; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-block; padding: 8px 16px; border: none;
+    border-radius: 4px; cursor: pointer; font-size: 14px;
+    text-decoration: none; color: #fff;
+  }
+  .btn-primary { background: #1a2b45; }
+  .btn-primary:hover { background: #243d5e; }
+  .btn-danger  { background: #c0392b; }
+  .btn-danger:hover  { background: #a93226; }
+  .btn-success { background: #27ae60; }
+  .btn-success:hover { background: #229954; }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  th { background: #1a2b45; color: #fff; padding: 10px 12px; text-align: left; }
+  td { padding: 9px 12px; border-bottom: 1px solid #e5e5e5; }
+  tr:hover td { background: #f5f8ff; }
+  .empty-row { text-align: center; color: #999; padding: 20px; }
+
+  /* ── DASHBOARD CARDS ── */
+  .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+  .card {
+    background: #f4f7fb; border: 1px solid #dce4ef;
+    border-radius: 6px; padding: 20px 30px; text-align: center; min-width: 180px;
+  }
+  .card .number { font-size: 40px; font-weight: bold; color: #1a2b45; }
+  .card .label  { font-size: 13px; color: #666; margin-top: 5px; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+  .badge-available { background: #d4edda; color: #155724; }
+  .badge-booked    { background: #fff3cd; color: #856404; }
+  .badge-active    { background: #cce5ff; color: #004085; }
+  .badge-completed { background: #e2e3e5; color: #383d41; }
+
+  hr { border: none; border-top: 1px solid #e0e0e0; margin: 25px 0; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .warn { color: #c0392b; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ LOGIN ══════ -->
+<div id="loginPage">
+  <div class="login-box">
+    <h2>🏨 Hotel Login</h2>
+    <p class="hint">Username: <b>admin</b> &nbsp;|&nbsp; Password: <b>admin123</b></p>
+    <input type="text"     id="loginUser" placeholder="Username">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button onclick="doLogin()">Login</button>
+    <p class="login-error" id="loginError"></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ APP ════════ -->
+<div id="app">
+
+  <div class="navbar">
+    <span class="brand">🏨 Hotel Management System</span>
+    <nav>
+      <a onclick="showSection('dashboard')">Dashboard</a>
+      <a onclick="showSection('rooms')">Rooms</a>
+      <a onclick="showSection('customers')">Customers</a>
+      <a onclick="showSection('bookings')">Bookings</a>
+      <a onclick="showSection('billing')">Billing</a>
+      <a onclick="showSection('reports')">Reports</a>
+      <a onclick="doLogout()" style="color:#ff8a80;">Logout</a>
+    </nav>
+  </div>
+
+  <div class="container">
+
+    <!-- ── ALERT ── -->
+    <div class="alert" id="alertBox"></div>
+
+    <!-- ════════════ DASHBOARD ════════════ -->
+    <div class="section active" id="sec-dashboard">
+      <h2>Dashboard</h2>
+      <p style="color:#666;margin-bottom:20px;">Welcome back, Admin. Here is the current summary.</p>
+      <div class="cards">
+        <div class="card"><div class="number" id="d-rooms">0</div><div class="label">Total Rooms</div></div>
+        <div class="card"><div class="number" style="color:#27ae60;" id="d-avail">0</div><div class="label">Available Rooms</div></div>
+        <div class="card"><div class="number" style="color:#e67e22;" id="d-custs">0</div><div class="label">Total Customers</div></div>
+        <div class="card"><div class="number" style="color:#2980b9;" id="d-bookings">0</div><div class="label">Active Bookings</div></div>
+      </div>
+      <hr>
+      <h3>Quick Navigation</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn btn-primary" onclick="showSection('rooms')">🛏 Manage Rooms</button>
+        <button class="btn btn-primary" onclick="showSection('customers')">👤 Manage Customers</button>
+        <button class="btn btn-primary" onclick="showSection('bookings')">📋 Manage Bookings</button>
+        <button class="btn btn-primary" onclick="showSection('billing')">💰 View Billing</button>
+        <button class="btn btn-primary" onclick="showSection('reports')">📊 View Reports</button>
+      </div>
+    </div>
+
+    <!-- ════════════ ROOMS ════════════ -->
+    <div class="section" id="sec-rooms">
+      <h2>Room Management</h2>
+      <h3>Add New Room</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Room Number</label><input type="text" id="r-num" placeholder="e.g. 101"></div>
+        <div class="form-group">
+          <label>Room Type</label>
+          <select id="r-type">
+            <option>Single</option><option>Double</option><option>Deluxe</option><option>Suite</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Price / Night (₹)</label><input type="number" id="r-price" placeholder="e.g. 1500" min="1"></div>
+        <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="addRoom()">Add Room</button></div>
+      </div>
+      <hr>
+      <h3>All Rooms</h3>
+      <table>
+        <thead><tr><th>#</th><th>Room No</th><th>Type</th><th>Price/Night</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="roomsTable"></tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ CUSTOMERS ════════════ -->
+    <div class="section" id="sec-customers">
+      <h2>Customer Management</h2>
+      <h3>Add New Customer</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name</label><input type="text" id="c-name" placeholder="Rahul Sharma"></div>
+        <div class="form-group"><label>Phone</label><input type="text" id="c-phone" placeholder="9876543210"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="c-email" placeholder="rahul@email.com"></div>
+        <div class="form-group"><label>Address</label><input type="text" id="c-addr" placeholder="City / Address"></div>
+        <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="addCustomer()">Add Customer</button></div>
+      </div>
+      <hr>
+      <h3>All Customers</h3>
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th></tr></thead>
+        <tbody id="customersTable"></tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ BOOKINGS ════════════ -->
+    <div class="section" id="sec-bookings">
+      <h2>Booking System</h2>
+      <h3>Create New Booking</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Customer</label><select id="b-cust" style="width:220px;"></select></div>
+        <div class="form-group"><label>Available Room</label><select id="b-room" style="width:240px;"></select></div>
+        <div class="form-group"><label>Check-In Date</label><input type="date" id="b-in"></div>
+        <div class="form-group"><label>Check-Out Date</label><input type="date" id="b-out"></div>
+        <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="addBooking()">Book Now</button></div>
+      </div>
+      <hr>
+      <h3>All Bookings</h3>
+      <table>
+        <thead><tr><th>#</th><th>Customer</th><th>Room</th><th>Type</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="bookingsTable"></tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ BILLING ════════════ -->
+    <div class="section" id="sec-billing">
+      <h2>Billing</h2>
+      <p style="color:#666;margin-bottom:15px;">Total = <b>Price per Night × Number of Days</b></p>
+      <table>
+        <thead><tr><th>#</th><th>Customer</th><th>Room</th><th>Type</th><th>Check-In</th><th>Check-Out</th><th>Days</th><th>₹/Night</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody id="billingTable"></tbody>
+      </table>
+    </div>
+
+    <!-- ════════════ REPORTS ════════════ -->
+    <div class="section" id="sec-reports">
+      <h2>Reports & Summary</h2>
+
+      <h3>Room Summary</h3>
+      <table>
+        <thead><tr><th>Total Rooms</th><th>Available</th><th>Booked</th></tr></thead>
+        <tbody id="rep-rooms"></tbody>
+      </table>
+
+      <br>
+      <h3>Booking & Revenue Summary</h3>
+      <table>
+        <thead><tr><th>Total Customers</th><th>Active Bookings</th><th>Completed Bookings</th><th>Total Revenue</th></tr></thead>
+        <tbody id="rep-revenue"></tbody>
+      </table>
+
+      <br>
+      <h3>Recent 5 Bookings</h3>
+      <table>
+        <thead><tr><th>Customer</th><th>Room</th><th>Check-In</th><th>Check-Out</th><th>Status</th></tr></thead>
+        <tbody id="rep-recent"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  STORAGE HELPERS
+// ══════════════════════════════════════════════════════════
+const load = key => JSON.parse(localStorage.getItem(key) || '[]');
+const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+
+let rooms     = load('hms_rooms');
+let customers = load('hms_customers');
+let bookings  = load('hms_bookings');
+
+function persist() {
+  save('hms_rooms',     rooms);
+  save('hms_customers', customers);
+  save('hms_bookings',  bookings);
+}
+
+// ══════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (u === 'admin' && p === 'admin123') {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    showSection('dashboard');
+  } else {
+    document.getElementById('loginError').textContent = 'Invalid username or password.';
+  }
+}
+
+function doLogout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+// Allow Enter key on login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') doLogin();
+});
+
+// ══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  hideAlert();
+
+  if (name === 'dashboard')  renderDashboard();
+  if (name === 'rooms')      renderRooms();
+  if (name === 'customers')  renderCustomers();
+  if (name === 'bookings')   renderBookings();
+  if (name === 'billing')    renderBilling();
+  if (name === 'reports')    renderReports();
+}
+
+// ══════════════════════════════════════════════════════════
+//  ALERT
+// ══════════════════════════════════════════════════════════
+function showAlert(msg, type = 'success') {
+  const box = document.getElementById('alertBox');
+  box.className = 'alert ' + type;
+  box.textContent = msg;
+  box.style.display = 'block';
+  setTimeout(hideAlert, 3000);
+}
+function hideAlert() {
+  document.getElementById('alertBox').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════
+function nextId(arr) {
+  return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
+}
+
+function daysBetween(cin, cout) {
+  const d = (new Date(cout) - new Date(cin)) / 86400000;
+  return Math.max(d, 1);
+}
+
+function badge(status) {
+  const map = {
+    available: 'badge-available', booked: 'badge-booked',
+    active: 'badge-active', completed: 'badge-completed'
+  };
+  return `<span class="badge ${map[status] || ''}">${status}</span>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('d-rooms').textContent    = rooms.length;
+  document.getElementById('d-avail').textContent    = rooms.filter(r => r.status === 'available').length;
+  document.getElementById('d-custs').textContent    = customers.length;
+  document.getElementById('d-bookings').textContent = bookings.filter(b => b.status === 'active').length;
+}
+
+// ══════════════════════════════════════════════════════════
+//  ROOMS
+// ══════════════════════════════════════════════════════════
+function addRoom() {
+  const num   = document.getElementById('r-num').value.trim();
+  const type  = document.getElementById('r-type').value;
+  const price = parseFloat(document.getElementById('r-price').value);
+
+  if (!num || !price) return showAlert('Fill all room fields.', 'error');
+  if (rooms.find(r => r.room_number === num)) return showAlert('Room number already exists!', 'error');
+
+  rooms.push({ id: nextId(rooms), room_number: num, room_type: type, price, status: 'available' });
+  persist();
+  document.getElementById('r-num').value = '';
+  document.getElementById('r-price').value = '';
+  showAlert('Room added successfully!');
+  renderRooms();
+}
+
+function deleteRoom(id) {
+  if (!confirm('Delete this room?')) return;
+  rooms = rooms.filter(r => r.id !== id);
+  persist();
+  showAlert('Room deleted.');
+  renderRooms();
+}
+
+function renderRooms() {
+  const tb = document.getElementById('roomsTable');
+  if (!rooms.length) { tb.innerHTML = `<tr><td colspan="6" class="empty-row">No rooms added yet.</td></tr>`; return; }
+  tb.innerHTML = rooms.map((r, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.room_number}</td>
+      <td>${r.room_type}</td>
+      <td>₹${r.price}</td>
+      <td>${badge(r.status)}</td>
+      <td><button class="btn btn-danger" onclick="deleteRoom(${r.id})">Delete</button></td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  CUSTOMERS
+// ══════════════════════════════════════════════════════════
+function addCustomer() {
+  const name  = document.getElementById('c-name').value.trim();
+  const phone = document.getElementById('c-phone').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const addr  = document.getElementById('c-addr').value.trim();
+
+  if (!name || !phone) return showAlert('Name and Phone are required.', 'error');
+
+  customers.push({ id: nextId(customers), name, phone, email, address: addr });
+  persist();
+  ['c-name','c-phone','c-email','c-addr'].forEach(id => document.getElementById(id).value = '');
+  showAlert('Customer added successfully!');
+  renderCustomers();
+}
+
+function renderCustomers() {
+  const tb = document.getElementById('customersTable');
+  if (!customers.length) { tb.innerHTML = `<tr><td colspan="5" class="empty-row">No customers added yet.</td></tr>`; return; }
+  tb.innerHTML = customers.map((c, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${c.name}</td>
+      <td>${c.phone}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.address || '—'}</td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  BOOKINGS
+// ══════════════════════════════════════════════════════════
+function populateBookingDropdowns() {
+  const cs = document.getElementById('b-cust');
+  const rs = document.getElementById('b-room');
+
+  cs.innerHTML = customers.length
+    ? `<option value="">-- Select Customer --</option>` + customers.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('')
+    : `<option value="">No customers available</option>`;
+
+  const avail = rooms.filter(r => r.status === 'available');
+  rs.innerHTML = avail.length
+    ? `<option value="">-- Select Room --</option>` + avail.map(r => `<option value="${r.id}">${r.room_number} – ${r.room_type} (₹${r.price}/night)</option>`).join('')
+    : `<option value="">No available rooms</option>`;
+}
+
+function addBooking() {
+  const custId = parseInt(document.getElementById('b-cust').value);
+  const roomId = parseInt(document.getElementById('b-room').value);
+  const cin    = document.getElementById('b-in').value;
+  const cout   = document.getElementById('b-out').value;
+
+  if (!custId || !roomId || !cin || !cout) return showAlert('Fill all booking fields.', 'error');
+  if (cin >= cout) return showAlert('Check-out must be after check-in.', 'error');
+
+  bookings.push({ id: nextId(bookings), customer_id: custId, room_id: roomId, check_in: cin, check_out: cout, status: 'active' });
+  const room = rooms.find(r => r.id === roomId);
+  if (room) room.status = 'booked';
+  persist();
+
+  document.getElementById('b-in').value = '';
+  document.getElementById('b-out').value = '';
+  showAlert('Booking created successfully!');
+  renderBookings();
+}
+
+function doCheckout(bookingId) {
+  if (!confirm('Confirm checkout?')) return;
+  const b = bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  b.status = 'completed';
+  const room = rooms.find(r => r.id === b.room_id);
+  if (room) room.status = 'available';
+  persist();
+  showAlert('Checkout completed. Room is now available.');
+  renderBookings();
+}
+
+function renderBookings() {
+  populateBookingDropdowns();
+  const tb = document.getElementById('bookingsTable');
+  if (!bookings.length) { tb.innerHTML = `<tr><td colspan="8" class="empty-row">No bookings yet.</td></tr>`; return; }
+
+  tb.innerHTML = [...bookings].reverse().map((b, i) => {
+    const c = customers.find(x => x.id === b.customer_id);
+    const r = rooms.find(x => x.id === b.room_id);
+    const action = b.status === 'active'
+      ? `<button class="btn btn-success" onclick="doCheckout(${b.id})">Checkout</button>`
+      : `<span style="color:#999;font-size:13px;">—</span>`;
+    return `<tr>
+      <td>${bookings.length - i}</td>
+      <td>${c ? c.name : '—'}</td>
+      <td>${r ? r.room_number : '—'}</td>
+      <td>${r ? r.room_type : '—'}</td>
+      <td>${b.check_in}</td>
+      <td>${b.check_out}</td>
+      <td>${badge(b.status)}</td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  BILLING
+// ══════════════════════════════════════════════════════════
+function renderBilling() {
+  const tb = document.getElementById('billingTable');
+  if (!bookings.length) { tb.innerHTML = `<tr><td colspan="10" class="empty-row">No billing records yet.</td></tr>`; return; }
+
+  tb.innerHTML = [...bookings].reverse().map((b, i) => {
+    const c    = customers.find(x => x.id === b.customer_id);
+    const r    = rooms.find(x => x.id === b.room_id);
+    const days = daysBetween(b.check_in, b.check_out);
+    const total = days * (r ? r.price : 0);
+    return `<tr>
+      <td>${bookings.length - i}</td>
+      <td>${c ? c.name : '—'}</td>
+      <td>${r ? r.room_number : '—'}</td>
+      <td>${r ? r.room_type : '—'}</td>
+      <td>${b.check_in}</td>
+      <td>${b.check_out}</td>
+      <td>${days}</td>
+      <td>₹${r ? r.price : 0}</td>
+      <td><b style="color:#1a2b45;">₹${total}</b></td>
+      <td>${badge(b.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  REPORTS
+// ══════════════════════════════════════════════════════════
+function renderReports() {
+  const avail     = rooms.filter(r => r.status === 'available').length;
+  const booked    = rooms.filter(r => r.status === 'booked').length;
+  const active    = bookings.filter(b => b.status === 'active').length;
+  const completed = bookings.filter(b => b.status === 'completed').length;
+
+  const revenue = bookings
+    .filter(b => b.status === 'completed')
+    .reduce((sum, b) => {
+      const r = rooms.find(x => x.id === b.room_id);
+      return sum + daysBetween(b.check_in, b.check_out) * (r ? r.price : 0);
+    }, 0);
+
+  document.getElementById('rep-rooms').innerHTML = `
+    <tr>
+      <td>${rooms.length}</td>
+      <td>${badge('available')} ${avail}</td>
+      <td>${badge('booked')} ${booked}</td>
+    </tr>`;
+
+  document.getElementById('rep-revenue').innerHTML = `
+    <tr>
+      <td>${customers.length}</td>
+      <td>${badge('active')} ${active}</td>
+      <td>${badge('completed')} ${completed}</td>
+      <td><b style="color:#27ae60;font-size:16px;">₹${revenue}</b></td>
+    </tr>`;
+
+  const recent = [...bookings].reverse().slice(0, 5);
+  document.getElementById('rep-recent').innerHTML = recent.length
+    ? recent.map(b => {
+        const c = customers.find(x => x.id === b.customer_id);
+        const r = rooms.find(x => x.id === b.room_id);
+        return `<tr>
+          <td>${c ? c.name : '—'}</td>
+          <td>${r ? r.room_number : '—'}</td>
+          <td>${b.check_in}</td>
+          <td>${b.check_out}</td>
+          <td>${badge(b.status)}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="5" class="empty-row">No bookings yet.</td></tr>`;
+}
+</script>
+</body>
+</html>
